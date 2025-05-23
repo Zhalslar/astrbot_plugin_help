@@ -37,7 +37,9 @@ class MyPlugin(Star):
         # 使用 defaultdict 可以方便地向列表中添加元素
         plugin_commands: Dict[str, List[str]] = collections.defaultdict(list)
         try:
+            # 获取所有插件的元数据，并且去掉未激活的
             all_stars_metadata = self.context.get_all_stars()
+            all_stars_metadata = [star for star in all_stars_metadata if star.activated]
         except Exception as e:
             logger.error(f"获取插件列表失败: {e}")
             return {}  # 出错时返回空字典
@@ -92,7 +94,6 @@ class MyPlugin(Star):
                     # 如果允许重复（例如不同handler但命令和描述相同），则直接 append
                     if formatted_command not in plugin_commands[plugin_name]:
                         plugin_commands[plugin_name].append(formatted_command)
-        # 将 defaultdict 转换为普通 dict 返回 (可选，但通常是好习惯)
         return dict(plugin_commands)
     """
     {
