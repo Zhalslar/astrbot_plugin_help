@@ -17,7 +17,7 @@ from .draw import AstrBotHelpDrawer
 @register(
     "astrbot_plugin_help", "tinker", "查看所有命令，包括插件，返回一张帮助图片", "1.1.3"
 )
-class MyPlugin(Star):
+class AstrBotPluginHelp(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.config = config
@@ -51,11 +51,11 @@ class MyPlugin(Star):
             plugin_name = getattr(star, "name", "未知插件")
             plugin_instance = getattr(star, "star_cls", None)
             module_path = getattr(star, "module_path", None)  # 获取模块路径以供匹配
-            if (
-                plugin_name == "astrbot"
-                or plugin_name == "astrbot_plugin_help"
-                or plugin_name == "astrbot-reminder"
-            ):
+            if plugin_name in [
+                "astrbot",
+                "astrbot_plugin_help",
+                "astrbot-reminder",
+            ]:
                 # 跳过自身和核心插件
                 continue
             # 进行必要的检查

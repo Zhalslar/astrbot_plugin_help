@@ -145,11 +145,14 @@ class AstrBotHelpDrawer:
                 continue
 
             # 新命令解析
-            parts = None
-            for sep in (" : ", " # ", "#", ":"):
-                if sep in stripped:
-                    parts = stripped.split(sep, 1)
-                    break
+            parts = next(
+                (
+                    stripped.split(sep, 1)
+                    for sep in (" : ", " # ", "#", ":")
+                    if sep in stripped
+                ),
+                None,
+            )
             if parts and len(parts) == 2:
                 cmd = (
                     parts[0][2:].strip()
@@ -306,6 +309,39 @@ class AstrBotHelpDrawer:
             draw.line([(x1 + radius, y2), (x2 - radius, y2)], fill=outline, width=width)
             draw.line([(x1, y1 + radius), (x1, y2 - radius)], fill=outline, width=width)
             draw.line([(x2, y1 + radius), (x2, y2 - radius)], fill=outline, width=width)
+
+    # ---------------- 绘制 Logo ----------------
+    def _draw_logo(self, img: Image.Image) -> None:
+        """在图片上绘制 logo 及标题、子标题"""
+        if not self.resized_logo:
+            return
+        draw = ImageDraw.Draw(img)
+        # 贴图
+        img.paste(self.resized_logo, (self.PADDING, self.PADDING), self.resized_logo)
+        # 标题文字
+        title_text = "AstrBot 命令帮助"
+        subtitle_text = "可用插件及指令列表"
+        logo_w, logo_h = self.resized_logo.size
+        x_start = self.PADDING + logo_w + 15
+        y_start_title = self.PADDING
+        y_start_subtitle = (
+            self.PADDING
+            + self.font_title.getbbox(title_text)[3]
+            - self.font_title.getbbox(title_text)[1]
+            + 5
+        )
+        draw.text(
+            (x_start, y_start_title),
+            title_text,
+            font=self.font_title,
+            fill=self.COLOR_TEXT_HEADER,
+        )
+        draw.text(
+            (x_start, y_start_subtitle),
+            subtitle_text,
+            font=self.font_subtitle,
+            fill=self.COLOR_TEXT_SUBTITLE,
+        )
 
     # ---------------- 卡片布局（每行最多 4 张） ----------------
     def _layout_cards(
@@ -488,33 +524,7 @@ class AstrBotHelpDrawer:
         )
 
         # 绘制logo
-        if self.resized_logo:
-            img.paste(
-                self.resized_logo, (self.PADDING, self.PADDING), self.resized_logo
-            )
-            title_text = "AstrBot 命令帮助"
-            subtitle_text = "可用插件及指令列表"
-            logo_w, logo_h = self.resized_logo.size
-            x_start = self.PADDING + logo_w + 15
-            y_start_title = self.PADDING
-            y_start_subtitle = (
-                self.PADDING
-                + self.font_title.getbbox(title_text)[3]
-                - self.font_title.getbbox(title_text)[1]
-                + 5
-            )
-            draw.text(
-                (x_start, y_start_title),
-                title_text,
-                font=self.font_title,
-                fill=self.COLOR_TEXT_HEADER,
-            )
-            draw.text(
-                (x_start, y_start_subtitle),
-                subtitle_text,
-                font=self.font_subtitle,
-                fill=self.COLOR_TEXT_SUBTITLE,
-            )
+        self._draw_logo(img)
 
         # 绘制卡片
         self._draw_cards(img, layout_info)
